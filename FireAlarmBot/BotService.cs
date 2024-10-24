@@ -32,82 +32,93 @@ public class BotService : BackgroundService
 
     private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        if (update.Message is null || update.Message.Type != MessageType.Text)
-            return;
-
-        var messageText = update.Message.Text;
-
-        if (messageText?.StartsWith("/check ") ?? false)
+        try
         {
-            var s_floor = messageText.Substring("/check ".Length);
-            if (s_floor.Contains('-'))
+            if (update.Message is null || update.Message.Type != MessageType.Text)
+                return;
+
+            var messageText = update.Message.Text;
+            if (messageText?.StartsWith("/check ") ?? false)
             {
-                var range = s_floor.Split('-');
-                if (range.Length >= 2 && int.TryParse(range.FirstOrDefault(), out int start) && int.TryParse(range.LastOrDefault(), out int end))
+                var s_floor = messageText.Substring("/check ".Length);
+                if (s_floor.Contains('-'))
                 {
-                    for (int i = start; i <= end; i++)
+                    var range = s_floor.Split('-');
+                    if (range.Length >= 2 && int.TryParse(range.FirstOrDefault(), out int start) && int.TryParse(range.LastOrDefault(), out int end))
                     {
-                        _floorService.AddFloor(i);
+                        for (int i = start; i <= end; i++)
+                        {
+                            _floorService.AddFloor(i);
+                        }
+                        _logger.LogInformation($"id: {update.Message.From?.Id} added {start} to {end}");
+                        await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"Этажи с {start} по {end} добавлены.", cancellationToken: cancellationToken);
                     }
-                    _logger.LogInformation($"id: {update.Message.From?.Id} added {start} to {end}");
-                    await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"Этажи с {start} по {end} добавлены.", cancellationToken: cancellationToken);
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(update.Message.Chat.Id, "Некорректный диапазон этажей. Использование: /check 1-10", cancellationToken: cancellationToken);
+                    }
+                }
+                else if (s_floor.Contains(','))
+                {
+                    //1, 2
+                    var floors = s_floor.Split(',').Where(x => int.TryParse(x.Trim(), out int i))
+                        .Select(x => int.Parse(x.Trim())).ToList();
+                    if (!floors.Any()) return;
+
+                    floors.ForEach(x => _floorService.AddFloor(x));
+                    var sfloors = string.Join(", ", floors);
+                    _logger.LogInformation($"id: {update.Message.From?.Id} added {sfloors}");
+                    await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"Этажи {sfloors} добавлены.", cancellationToken: cancellationToken);
+                }
+                else if (int.TryParse(s_floor, out int floor))
+                {
+                    _floorService.AddFloor(floor);
+                    _logger.LogInformation($"id: {update.Message.From?.Id} added {floor}");
+                    await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"Этаж {floor} добавлен.", cancellationToken: cancellationToken);
                 }
                 else
                 {
-                    await botClient.SendTextMessageAsync(update.Message.Chat.Id, "Некорректный диапазон этажей. Использование: /check 1-10", cancellationToken: cancellationToken);
+                    await botClient.SendTextMessageAsync(update.Message.Chat.Id, "Некорректный номер этажа.", cancellationToken: cancellationToken);
                 }
             }
-            else if (s_floor.Contains(','))
+            else if (messageText == "/summary")
             {
-                //1, 2
-                var floors = s_floor.Split(',').Where(x => int.TryParse(x.Trim(), out int i))
-                    .Select(x => int.Parse(x.Trim())).ToList();
-                if (!floors.Any()) return;
+                var floors = _floorService.GetUniqueFloors();
+                var response = floors.Any() ? string.Join(", ", floors) : "Нет записанных этажей.";
 
-                floors.ForEach(x => _floorService.AddFloor(x));
-                var sfloors = string.Join(", ", floors);
-                _logger.LogInformation($"id: {update.Message.From?.Id} added {sfloors}");
-                await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"Этажи {sfloors} добавлены.", cancellationToken: cancellationToken);
+
+                await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"Записанные этажи: {response}", cancellationToken: cancellationToken);
             }
-            else if (int.TryParse(s_floor, out int floor))
+            else if (messageText == "/joke")
             {
-                _floorService.AddFloor(floor);
-                _logger.LogInformation($"id: {update.Message.From?.Id} added {floor}");
-                await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"Этаж {floor} добавлен.", cancellationToken: cancellationToken);
+                var floors = _floorService.GetUniqueFloors();
+                var totalFloorsChecked = _floorService.GetTotalFloorsChecked();
+                var uniqueFloorCount = _floorService.GetUniqueFloorCount();
+                var mostCheckedFloor = _floorService.GetMostCheckedFloor();
+                var lastCheckedFloor = _floorService.GetLastCheckedFloor();
+                var checkedPercentage = _floorService.GetCheckedPercentage();
+
+                var response = floors.Any() 
+                    ? string.Join(", ", floors) 
+                    : "Нет записанных этажей.";
+
+                var statistics = $"Записанные этажи: {response}\n" +
+                    $"Всего проверок: {totalFloorsChecked}\n" +
+                    $"Уникальных этажей: {uniqueFloorCount}\n" +
+                    $"Самый часто проверяемый этаж: {mostCheckedFloor}\n" +
+                    $"Последний проверенный этаж: {lastCheckedFloor}\n" +
+                    $"Процент проверенных этажей: {checkedPercentage:f2}%";
+
+                await botClient.SendTextMessageAsync(update.Message.Chat.Id, statistics, cancellationToken: cancellationToken);
             }
-            else
+            else if (messageText == "/admin")
             {
-                await botClient.SendTextMessageAsync(update.Message.Chat.Id, "Некорректный номер этажа.", cancellationToken: cancellationToken);
+                //if ()
             }
         }
-        else if (messageText == "/summary")
+        catch (Exception e)
         {
-            var floors = _floorService.GetUniqueFloors();
-            var response = floors.Any() ? string.Join(", ", floors) : "Нет записанных этажей.";
-            await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"Записанные этажи: {response}", cancellationToken: cancellationToken);
-        }
-        else if (messageText == "/joke")
-        {
-            var floors = _floorService.GetUniqueFloors();
-            var totalFloorsChecked = _floorService.GetTotalFloorsChecked();
-            var uniqueFloorCount = _floorService.GetUniqueFloorCount();
-            var mostCheckedFloor = _floorService.GetMostCheckedFloor();
-            var lastCheckedFloor = _floorService.GetLastCheckedFloor();
-            var checkedPercentage = _floorService.GetCheckedPercentage();
-
-            var response = floors.Any() 
-                ? string.Join(", ", floors) 
-                : "Нет записанных этажей.";
-
-            var statistics = $@"
-Записанные этажи: {response}
-Всего проверок: {totalFloorsChecked}
-Уникальных этажей: {uniqueFloorCount}
-Самый часто проверяемый этаж: {mostCheckedFloor}
-Последний проверенный этаж: {lastCheckedFloor}
-Процент проверенных этажей: {checkedPercentage:f2}%
-                ";
-            await botClient.SendTextMessageAsync(update.Message.Chat.Id, statistics, cancellationToken: cancellationToken);
+            _logger.LogError(e, "HandleUpdate exception");
         }
     }
 

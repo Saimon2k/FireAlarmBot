@@ -12,16 +12,16 @@ var host = Host.CreateDefaultBuilder(args)
         .AddConfiguration(ctx.Configuration.GetSection("Logging"))
         .AddFile(ctx.Configuration.GetValue<string>("Logging:FileName")))
     .ConfigureServices((context, services) =>
-    {
-        var botToken = Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN");
-        if (string.IsNullOrEmpty(botToken))
-            throw new InvalidOperationException("Необходимо указать токен бота в переменной окружения TELEGRAM_BOT_TOKEN.");
+        {
+            var botToken = Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN") ??
+                context.Configuration.GetValue<string>("FireAlarmBot:Token");
+            if (string.IsNullOrEmpty(botToken))
+                throw new InvalidOperationException("Необходимо указать токен бота.");
 
-        services.AddSingleton<TelegramBotClient>(provider => new TelegramBotClient(botToken));
-        services.AddSingleton<FloorService>();
-        services.AddHostedService<BotService>();
-    })
-
-    .Build();
+            services.AddSingleton(provider => new TelegramBotClient(botToken));
+            services.AddSingleton<FloorService>();
+            services.AddHostedService<BotService>();
+        }
+    ).Build();
 
 await host.RunAsync();

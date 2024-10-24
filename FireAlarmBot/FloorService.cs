@@ -1,16 +1,14 @@
 using Microsoft.Extensions.Logging;
-using System.Timers;
 
 public class FloorService
 {
+    private readonly ILogger<FloorService> _logger;
     private readonly List<int> _floorLogs = new();
     private readonly System.Timers.Timer _timer;
-    private readonly ILogger<FloorService> _logger;
 
     public FloorService(ILogger<FloorService> logger)
     {
         _logger = logger;
-        //_timer = new Timer(ClearLogs, null, TimeSpan.FromHours(1), TimeSpan.FromHours(1));
         _timer = new System.Timers.Timer(TimeSpan.FromHours(1));
         _timer.Elapsed += (s, e) => ClearLogs();
     }
