@@ -68,41 +68,42 @@ public class BotService : BackgroundService
                     floors.ForEach(x => _floorService.AddFloor(x));
                     var sfloors = string.Join(", ", floors);
                     _logger.LogInformation($"id: {update.Message.From?.Id} added {sfloors}");
-                    await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"Этажи {sfloors} добавлены.", cancellationToken: cancellationToken);
+                    await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"Этажи {sfloors} добавлены", cancellationToken: cancellationToken);
                 }
                 else if (int.TryParse(s_floor, out int floor))
                 {
                     _floorService.AddFloor(floor);
                     _logger.LogInformation($"id: {update.Message.From?.Id} added {floor}");
-                    await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"Этаж {floor} добавлен.", cancellationToken: cancellationToken);
+                    await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"Этаж {floor} добавлен", cancellationToken: cancellationToken);
                 }
                 else
                 {
-                    await botClient.SendTextMessageAsync(update.Message.Chat.Id, "Некорректный номер этажа.", cancellationToken: cancellationToken);
+                    await botClient.SendTextMessageAsync(update.Message.Chat.Id, "Некорректный номер этажа", cancellationToken: cancellationToken);
                 }
             }
             else if (messageText == "/summary")
             {
                 var floors = _floorService.GetUniqueFloors();
-                var response = floors.Any() ? string.Join(", ", floors) : "Нет записанных этажей.";
+                var uncheck_floors = _floorService.GetUncheckedFloors();
+                var response = "Записанные этажи: " + (floors.Any() ? string.Join(", ", floors) : "Нет таких этажей") + "\n" +
+                               "Непроверенные этажи: " + (uncheck_floors.Any() ? string.Join(", ", uncheck_floors) : "Нет таких этажей");
 
-
-                await botClient.SendTextMessageAsync(update.Message.Chat.Id, $"Записанные этажи: {response}", cancellationToken: cancellationToken);
+                await botClient.SendTextMessageAsync(update.Message.Chat.Id, response, cancellationToken: cancellationToken);
             }
             else if (messageText == "/joke")
             {
                 var floors = _floorService.GetUniqueFloors();
+                var uncheck_floors = _floorService.GetUncheckedFloors();
                 var totalFloorsChecked = _floorService.GetTotalFloorsChecked();
                 var uniqueFloorCount = _floorService.GetUniqueFloorCount();
                 var mostCheckedFloor = _floorService.GetMostCheckedFloor();
                 var lastCheckedFloor = _floorService.GetLastCheckedFloor();
                 var checkedPercentage = _floorService.GetCheckedPercentage();
 
-                var response = floors.Any() 
-                    ? string.Join(", ", floors) 
-                    : "Нет записанных этажей.";
+                var response = floors.Any() ? string.Join(", ", floors) : "Нет таких этажей";
 
                 var statistics = $"Записанные этажи: {response}\n" +
+                    $"Непроверенные этажи: {(uncheck_floors.Any() ? string.Join(", ", uncheck_floors) : "Нет таких этажей")}\n" +
                     $"Всего проверок: {totalFloorsChecked}\n" +
                     $"Уникальных этажей: {uniqueFloorCount}\n" +
                     $"Самый часто проверяемый этаж: {mostCheckedFloor}\n" +
@@ -118,7 +119,7 @@ public class BotService : BackgroundService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "HandleUpdate exception");
+            _logger.LogError(e, "BotService HandleUpdate exception");
         }
     }
 

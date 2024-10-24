@@ -43,6 +43,14 @@ public class FloorService
         return _floorLogs.Distinct().Count();  // Количество уникальных этажей
     }
 
+    // Новый метод для получения списка непроверенных этажей
+    public IEnumerable<int> GetUncheckedFloors()
+    {
+        var allFloors = Enumerable.Range(2, 24);  // Этажи с 2 по 25
+        var checkedFloors = GetUniqueFloors();
+        return allFloors.Except(checkedFloors);  // Возвращаем те, которые ещё не были проверены
+    }
+
     public int GetMostCheckedFloor()
     {
         return _floorLogs.GroupBy(f => f)

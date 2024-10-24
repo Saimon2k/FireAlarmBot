@@ -12,9 +12,8 @@ public class FileLoggerProvider : ILoggerProvider
     public ILogger CreateLogger(string categoryName)
     {
         var dir = Path.GetDirectoryName(_path);
-        if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
-        //ExDirectory.TryCreate(Path.GetDirectoryName(_path));
-        //Directory.CreateDirectory(_path);
+        if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+            Directory.CreateDirectory(dir);
         return new FileLogger(_path);
     }
 
