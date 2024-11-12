@@ -10,7 +10,7 @@ var host = Host.CreateDefaultBuilder(args)
         .ClearProviders()
         .AddConsole()
         .AddConfiguration(ctx.Configuration.GetSection("Logging"))
-        .AddFile(ctx.Configuration.GetValue<string>("Logging:FileName")))
+        .AddFile(ctx.Configuration.GetValue<string>("Logging:FileName")!))
     .ConfigureServices((context, services) =>
         {
             var botToken = Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN") ??

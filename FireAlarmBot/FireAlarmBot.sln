@@ -5,6 +5,8 @@ VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FireAlarmBot", "FireAlarmBot.csproj", "{979BF8C5-8CD1-4C88-BE7A-3B6A612E1312}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireAlarmBotTests", "..\FireAlarmBotTests\FireAlarmBotTests.csproj", "{C1ECE527-3B45-45F4-9814-778509ABB57E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{979BF8C5-8CD1-4C88-BE7A-3B6A612E1312}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{979BF8C5-8CD1-4C88-BE7A-3B6A612E1312}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{979BF8C5-8CD1-4C88-BE7A-3B6A612E1312}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1ECE527-3B45-45F4-9814-778509ABB57E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1ECE527-3B45-45F4-9814-778509ABB57E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1ECE527-3B45-45F4-9814-778509ABB57E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1ECE527-3B45-45F4-9814-778509ABB57E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

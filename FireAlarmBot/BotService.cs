@@ -38,9 +38,14 @@ public class BotService : BackgroundService
                 return;
 
             var messageText = update.Message.Text;
-            if (messageText?.StartsWith("/check ") ?? false)
+            if (messageText?.StartsWith("/check") ?? false)
             {
-                var s_floor = messageText.Substring("/check ".Length);
+
+                var s_floor = messageText.Substring("/check".Length)?.Trim() ?? string.Empty;
+                if (string.IsNullOrEmpty(s_floor))
+                {
+                    await botClient.SendTextMessageAsync(update.Message.Chat.Id, "Некорректный диапазон этажей. Пример: /check 12", cancellationToken: cancellationToken);
+                }
                 if (s_floor.Contains('-'))
                 {
                     var range = s_floor.Split('-');
@@ -55,7 +60,7 @@ public class BotService : BackgroundService
                     }
                     else
                     {
-                        await botClient.SendTextMessageAsync(update.Message.Chat.Id, "Некорректный диапазон этажей. Использование: /check 1-10", cancellationToken: cancellationToken);
+                        await botClient.SendTextMessageAsync(update.Message.Chat.Id, "Некорректный диапазон этажей. Пример: /check 7-10", cancellationToken: cancellationToken);
                     }
                 }
                 else if (s_floor.Contains(','))
