@@ -18,6 +18,7 @@ public class FloorService
     public void AddFloor(int floor)
     {
         if (floor <= 1 || floor > 25) return;
+        
         _floorLogs.Add(floor);
         _logger.LogInformation("FloorService.AddFloor({0})", floor);
         _timer.Stop();

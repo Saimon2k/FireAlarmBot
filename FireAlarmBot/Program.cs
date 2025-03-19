@@ -1,27 +1,34 @@
-﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Telegram.Bot;
 
 var host = Host.CreateDefaultBuilder(args)
-    .ConfigureAppConfiguration(x => x.AddJsonFile("appsettings.json"))
-    .ConfigureLogging((ctx, conf) => conf
-        .ClearProviders()
-        .AddConsole()
-        .AddConfiguration(ctx.Configuration.GetSection("Logging"))
-        .AddFile(ctx.Configuration.GetValue<string>("Logging:FileName")!))
     .ConfigureServices((context, services) =>
-        {
-            var botToken = Environment.GetEnvironmentVariable("TELEGRAM_BOT_TOKEN") ??
-                context.Configuration.GetValue<string>("FireAlarmBot:Token");
-            if (string.IsNullOrEmpty(botToken))
-                throw new InvalidOperationException("Необходимо указать токен бота.");
+    {
+        // Configure options
+        services.Configure<BotOptions>(
+            context.Configuration.GetSection(BotOptions.SectionName));
 
-            services.AddSingleton(provider => new TelegramBotClient(botToken));
-            services.AddSingleton<FloorService>();
-            services.AddHostedService<BotService>();
-        }
-    ).Build();
+        // Register bot client
+        services.AddSingleton<ITelegramBotClient>(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<BotOptions>>();
+            return new TelegramBotClient(options.Value.BotToken);
+        });
+
+        // Register services
+        services.AddSingleton<IFloorService, FloorService>();
+        services.AddSingleton<CommandService>();
+
+        // Register command handlers
+        services.AddSingleton<ICommandHandler, CheckCommandHandler>();
+        services.AddSingleton<ICommandHandler, SummaryCommandHandler>();
+        services.AddSingleton<ICommandHandler, StatsCommandHandler>();
+
+        // Register background service
+        //services.AddHostedService<BotService>();
+    })
+    .Build();
 
 await host.RunAsync();

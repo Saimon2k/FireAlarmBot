@@ -10,19 +10,25 @@ public class BotService : BackgroundService
     private readonly ILogger<BotService> _logger;
     private readonly TelegramBotClient _botClient;
     private readonly FloorService _floorService;
+    private readonly CommandService _commandService;
 
-    public BotService(ILogger<BotService> logger, TelegramBotClient botClient, FloorService floorService)
+    public BotService(
+        ILogger<BotService> logger,
+        TelegramBotClient botClient,
+        FloorService floorService,
+        CommandService commandService)
     {
         _logger = logger;
         _botClient = botClient;
         _floorService = floorService;
+        _commandService = commandService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _botClient.StartReceiving(
-            HandleUpdateAsync,
-            HandleErrorAsync,
+            _commandService.HandleUpdateAsync,
+            _commandService.HandleErrorAsync,
             cancellationToken: stoppingToken
         );
 
