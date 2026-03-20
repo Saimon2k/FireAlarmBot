@@ -1,3 +1,5 @@
+namespace FireAlarmBot;
+
 public class BotOptions
 {
     public const string SectionName = "BotConfiguration";

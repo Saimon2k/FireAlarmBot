@@ -2,6 +2,8 @@ using Microsoft.Extensions.Logging;
 using System.Threading;
 using Telegram.Bot.Types;
 
+namespace FireAlarmBot;
+
 public class FloorService
 {
     private readonly ILogger<FloorService> _logger;

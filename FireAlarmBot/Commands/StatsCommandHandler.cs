@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+namespace FireAlarmBot.Commands;
 
 public class StatsCommandHandler : ICommandHandler
 {
@@ -29,12 +30,12 @@ public class StatsCommandHandler : ICommandHandler
                            $"Последний проверенный этаж: {stats.LastCheckedFloor}\n" +
                            $"Процент проверенных этажей: {stats.CheckedPercentage:f2}%";
 
-            await botClient.SendTextMessageAsync(message.Chat.Id, statistics, cancellationToken: cancellationToken);
+            await botClient.SendMessage(message.Chat.Id, statistics, cancellationToken: cancellationToken);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing stats command");
-            await botClient.SendTextMessageAsync(message.Chat.Id, 
+            await botClient.SendMessage(message.Chat.Id, 
                 "Произошла ошибка при получении статистики", 
                 cancellationToken: cancellationToken);
         }

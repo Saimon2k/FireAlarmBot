@@ -1,3 +1,5 @@
+namespace FireAlarmBot;
+
 public interface IFloorService
 {
     Task<string> AddCheckedFloor(string input, long userId);

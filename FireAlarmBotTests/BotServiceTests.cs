@@ -1,15 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Moq;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Xunit;
 
-namespace Tests
+namespace FireAlarmBot.Tests
 {
     public class BotServiceTests
     {
@@ -181,7 +177,7 @@ namespace Tests
             await _botService.HandleUpdateAsync(_botClientMock.Object, update, CancellationToken.None);
 
             // Assert
-            _botClientMock.Verify(b => b.SendTextMessageAsync(1, "Некорректный диапазон этажей. Использование: /check 1-10", null, false, false, 0, false, CancellationToken.None), Times.Once);
+            _botClientMock.Verify(b => b.SendMessage(1, "Некорректный диапазон этажей. Использование: /check 1-10", null, false, false, 0, false, CancellationToken.None), Times.Once);
         }
 
         [Fact]
@@ -203,7 +199,7 @@ namespace Tests
             await _botService.HandleUpdateAsync(_botClientMock.Object, update, CancellationToken.None);
 
             // Assert
-            _botClientMock.Verify(b => b.SendTextMessageAsync(1, "Некорректный номер этажа", null, false, false, 0, false, CancellationToken.None), Times.Once);
+            _botClientMock.Verify(b => b.SendMessage(1, "Некорректный номер этажа", null, false, false, 0, false, CancellationToken.None), Times.Once);
         }
     }
 }

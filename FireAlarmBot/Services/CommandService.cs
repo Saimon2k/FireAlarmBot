@@ -1,8 +1,11 @@
+using FireAlarmBot.Commands;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+
+namespace FireAlarmBot;
 
 public class CommandService
 {

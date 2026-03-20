@@ -1,5 +1,6 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
+namespace FireAlarmBot.Commands;
 
 public interface ICommandHandler
 {

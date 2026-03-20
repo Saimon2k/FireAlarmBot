@@ -2,6 +2,8 @@ using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
+namespace FireAlarmBot.Commands;
+
 public class CheckCommandHandler : ICommandHandler
 {
     private readonly IFloorService _floorService;
@@ -21,7 +23,7 @@ public class CheckCommandHandler : ICommandHandler
         
         if (string.IsNullOrEmpty(s_floor))
         {
-            await botClient.SendTextMessageAsync(message.Chat.Id, 
+            await botClient.SendMessage(message.Chat.Id, 
                 "Некорректный диапазон этажей. Пример: /check 12", 
                 cancellationToken: cancellationToken);
             return;
@@ -30,12 +32,12 @@ public class CheckCommandHandler : ICommandHandler
         try
         {
             var result = await _floorService.AddCheckedFloor(s_floor, message.From?.Id ?? 0);
-            await botClient.SendTextMessageAsync(message.Chat.Id, result, cancellationToken: cancellationToken);
+            await botClient.SendMessage(message.Chat.Id, result, cancellationToken: cancellationToken);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing check command");
-            await botClient.SendTextMessageAsync(message.Chat.Id, 
+            await botClient.SendMessage(message.Chat.Id, 
                 "Произошла ошибка при обработке команды", 
                 cancellationToken: cancellationToken);
         }

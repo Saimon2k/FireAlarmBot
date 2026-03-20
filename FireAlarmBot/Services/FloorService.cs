@@ -1,10 +1,11 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+namespace FireAlarmBot;
 
 public class FloorService : IFloorService
 {
     private readonly ILogger<FloorService> _logger;
-    private readonly List<int> _floorLogs = new();
+    private readonly List<int> _floorLogs = [];
     private readonly System.Timers.Timer _timer;
     private readonly BotOptions _options;
     private readonly object _lock = new();

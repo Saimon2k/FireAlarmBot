@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+namespace FireAlarmBot.Commands;
 
 public class SummaryCommandHandler : ICommandHandler
 {
@@ -25,12 +26,12 @@ public class SummaryCommandHandler : ICommandHandler
             var response = "Записанные этажи: " + (floors.Any() ? string.Join(", ", floors) : "Нет таких этажей") + "\n" +
                           "Непроверенные этажи: " + (uncheck_floors.Any() ? string.Join(", ", uncheck_floors) : "Нет таких этажей");
 
-            await botClient.SendTextMessageAsync(message.Chat.Id, response, cancellationToken: cancellationToken);
+            await botClient.SendMessage(message.Chat.Id, response, cancellationToken: cancellationToken);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing summary command");
-            await botClient.SendTextMessageAsync(message.Chat.Id, 
+            await botClient.SendMessage(message.Chat.Id, 
                 "Произошла ошибка при получении статистики", 
                 cancellationToken: cancellationToken);
         }
